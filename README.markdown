@@ -8,9 +8,9 @@ database.
 
 1. Clone the repository
 2. Make sure you have the following gems:
- - rubygems
- - sequel
- - hpricot 
+ rubygems
+ sequel
+ hpricot 
 3. You'd also need SQLite3
 4. run 'ruby scrap.rb'
 
