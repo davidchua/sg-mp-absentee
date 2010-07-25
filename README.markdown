@@ -1,7 +1,7 @@
-# Singapore Members of Parliament's Attendance Record
+# Singapore Members of Parliament's Absentee Record
 
 Simple script to scrap data from Singapore Parliament's proceeding reports. This
-script helps to track MP's attendance and outputs the result into a sqlite3
+script helps to track MP's absentee records and outputs the result into a sqlite3
 database.
 
 ## Usage
@@ -11,8 +11,12 @@ database.
  rubygems
  sequel
  hpricot 
-3. You'd also need SQLite3
+3. You'd also need sqlite3
 4. run 'ruby scrap.rb'
+
+### Changing the name of your database
+
+To change your sqlite3 database name or path, you have to edit both scrap.rb and parsething.rb.
 
 ## Todo
 
