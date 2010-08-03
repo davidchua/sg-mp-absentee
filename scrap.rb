@@ -28,7 +28,7 @@ end
   system("catdoc #{@parse_date}.doc > #{@parse_date}.txt")
     @go = Parsething.new("#{@parse_date}.txt", link["href"])
     @go.parse
-  system("rm #{parse_data}.txt #{parse_data}.doc")
+  system("rm #{@parse_date}.txt #{@parse_date}.doc")
   puts link["href"]
  end
 
