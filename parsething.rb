@@ -11,8 +11,34 @@ class Parsething
     @link = link
   end
 
-  def parse
+  def self.generate_stats
+    @db = Sequel.connect("#$database_path")
+    items = @db[:attendance]
+    latest_date = @db[:attendance].max(:date)
+    latest_absentees = @db[:attendance].filter(:date => latest_date).all
+    puts "----------------------------"
+    puts "Absentees on Last Parliament Sitting:  #{Time.parse(latest_date).strftime('%d/%m/%Y')}"
+    puts "----------------------------"
+    latest_absentees.each do |t|
+      puts "#{t[:name]} of #{t[:ward]}"
+    end
+    puts ""
+    puts "----------------------------"
+    puts "Stats"
+    puts "----------------------------"
+    puts "Top 5 absent MPs:"
+    @db.fetch("select name, count(name) AS count from attendance GROUP BY name ORDER BY count(name) DESC LIMIT 0,5") do |row|
+      puts "#{row[:name]} with #{row[:count]}"
+    end
+    puts " "
+    puts "Top 5 wards with highest number of absentees:"
+    @db.fetch("select ward, count(ward) AS count from attendance GROUP BY ward ORDER BY count(ward) DESC LIMIT 0,5") do |row|
+      puts "#{row[:ward]} with #{row[:count]}"
+    end
+    puts " "
+  end
 
+  def parse
     # look through doc for the keyword 'ABSENT'
     @people = @doc[/ABSENT:\n+(.*)\n{2}/m,1]
     if @people.nil?
@@ -28,7 +54,7 @@ class Parsething
 
    @split = @people[/((Mdm|Er|Prof|Mr|Ms|Dr|[RAdm (NS)]|Mrs|[Assoc. Prof.])*\s(\w)+(.*)(\n|\w|[.])+)+/].split(/\n{2}/)
     if !@split.nil?
-        @db = Sequel.connect('sqlite://attendance.db')
+        @db = Sequel.connect("#$database_path")
         @db.create_table? :attendance do
           primary_key :id
           String :name
