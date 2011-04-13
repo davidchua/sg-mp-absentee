@@ -30,9 +30,10 @@ elements = @hp.search("//div[@class='article']/table")
   @parse_date = DateTime.parse(@date)
   if !maxdate.nil? && @parse_date <= maxdate     
   else
-  system("wget http://www.parliament.gov.sg/sites/default/files/#{link["href"]} -O #{@parse_date}.doc")
+  system("wget http://www.parliament.gov.sg/#{link["href"]} -O #{@parse_date}.doc")
   system("catdoc #{@parse_date}.doc > #{@parse_date}.txt")
     @go = Parsething.new("#{@parse_date}.txt", link["href"])
+    @go.parse
   puts link["href"]
  end
 end
