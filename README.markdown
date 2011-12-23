@@ -20,6 +20,7 @@ To change your sqlite3 database name or path, you have to edit both scrap.rb and
 
 ## Todo
 
+- Allow script to actually pull data from 11th Parliament despite being uploaded
 - To reduce the number of gem dependency
 - The ability to generate attendance statistics within the script
 
