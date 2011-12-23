@@ -3,7 +3,7 @@ class Parsething
   def initialize(doc, link)
     data = String.new
     @filename = doc.to_s
-    f = File.open(doc.to_s, "r")
+    f = File.open(doc.to_s, "r:utf-8")
     f.each_line do |line|
       data += line
     end
@@ -16,6 +16,8 @@ class Parsething
     items = @db[:attendance]
     latest_date = @db[:attendance].max(:date)
     latest_absentees = @db[:attendance].filter(:date => latest_date).all
+    puts "Total number of Parliament Sittings with Absentee Records:"
+    puts @db[:attendance].get{count(DISTINCT date)}
     puts "----------------------------"
     puts "Absentees on Last Parliament Sitting:  #{Time.parse(latest_date).strftime('%d/%m/%Y')}"
     puts "----------------------------"
@@ -39,8 +41,10 @@ class Parsething
   end
 
   def parse
+    require 'ruby-debug'
     # look through doc for the keyword 'ABSENT'
-    @people = @doc[/ABSENT:\n+(.*)\n{2}/m,1]
+   # debugger
+    @people = @doc[/ABSENT:(.*?)_{2,}?\n{1,}/m]
     if @people.nil?
       return
     end
@@ -51,8 +55,9 @@ class Parsething
     # look through results and then search for instances of names and split them
 #   @split = @people[/((Mr|Ms|Dr|[RAdm (NS)]|Mrs|[Assoc. Prof.])*\s(\w)+(.*)(\n|\w|[.])+)+/].split(/\n{2}/)
 
-
-   @split = @people[/((Mdm|Er|Prof|Mr|Ms|Dr|[RAdm (NS)]|Mrs|[Assoc. Prof.])*\s(\w)+(.*)(\n|\w|[.])+)+/].split(/\n{2}/)
+   @people.gsub!('Assoc. Prof.', 'Associate Professor')
+   #debugger
+   @split = @people[/((Mdm|Er|Prof|Mr|Ms|Dr|[RAdm (NS)]|Mrs|[Assoc. Prof.])*\s(\w)+(.*)(\n|\w|[.])+)+/].split('.')
     if !@split.nil?
         @db = Sequel.connect("#$database_path")
         @db.create_table? :attendance do
@@ -81,15 +86,15 @@ class Parsething
       items = @db[:attendance]
       ward = t[/([(].+[)])+/][1..-2]
       if name == "Mr SPEAKER"
-        name = ward.gsub(/([(].+[)])(.*)+/, '').strip        
+        name = ward.gsub(/([(].+[)])(.*)+/, '').strip
         ward = ward[/([(].+[)])+/][1..-2]
         puts name
         puts ward
       end
-      
+
       name = name.split.map { |x| x.capitalize}.join(' ')
-      ward = ward.split.map { |x| x.capitalize}.join(' ') 
-      items.insert(:name => name, :ward => ward, :attended => false, :parliament => "11", :date => @filename.to_s.gsub('.txt', ''), :link => @link)
+      ward = ward.split.map { |x| x.capitalize}.join(' ')
+      items.insert(:name => name, :ward => ward, :attended => false, :parliament => "12", :date => @filename.to_s.gsub('.txt', ''), :link => @link)
       else
       end
     end

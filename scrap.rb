@@ -3,14 +3,14 @@ require 'hpricot'
 require 'open-uri'
 require 'date'
 require 'time'
-require 'parsething'
-require 'ap'
+require './parsething'
+#require 'ap'
 require 'ruby-debug'
 require 'sequel'
-$database_path = "sqlite://attendance.db"
+$database_path = "sqlite://12attendance.db"
 
 
-@hp = Hpricot(open("http://www.parliament.gov.sg/publications/votes-and-proceedings-11th-parliament"))
+@hp = Hpricot(open("http://www.parliament.gov.sg/publications/votes-and-proceedings12th"))
 
 db = Sequel.connect("#$database_path")
 dataset = db[:attendance]
@@ -22,18 +22,24 @@ end
 # compare it with the parse_date
 
 #@hp.search("//a[@class='pub']").each do |link|
-elements = @hp.search("//div[@class='article']/table")
+elements = @hp.search("//div[@id='bill_introduced']/table")
 (elements/"//a").each do |link|
 #@hp.search("//a[@class='pub']").each do |link|
   @date = link.inner_html.gsub(/\s{2,}/, " ")
-  puts @date
+  #puts @date
   @parse_date = DateTime.parse(@date)
+  puts @parse_date
   if !maxdate.nil? && @parse_date <= maxdate     
   else
-  system("wget http://www.parliament.gov.sg/#{link["href"]} -O #{@parse_date}.doc")
-  system("catdoc #{@parse_date}.doc > #{@parse_date}.txt")
-    @go = Parsething.new("#{@parse_date}.txt", link["href"])
-    @go.parse
+  system("wget \"#{link["href"]}\" -O #{@parse_date}.pdf")
+  system("pdftotext #{@parse_date}.pdf -enc UTF-8")
+  puts @parse_date
+  
+  if @parse_date.to_s == "2011-10-10T00:00:00+00:00"
+    puts "WADADADASDSDSA"
+  end
+   @go = Parsething.new("#{@parse_date}.txt", link["href"])
+   @go.parse
   puts link["href"]
  end
 end
