@@ -57,8 +57,10 @@ class Parsething
 #   @split = @people[/((Mr|Ms|Dr|[RAdm (NS)]|Mrs|[Assoc. Prof.])*\s(\w)+(.*)(\n|\w|[.])+)+/].split(/\n{2}/)
 
    @people.gsub!('Assoc. Prof.', 'Associate Professor')
-#   debugger
-   @split = @people[/((Mdm|Er|Prof|Mr|Ms|Dr|[RAdm (NS)]|Mrs|[Assoc. Prof.])*\s(\w)+(.*)(\n|\w|[.])+)+/].split('.')
+   @people.gsub!('Asst. Prof.', 'Assistant Professor')
+   #debugger
+   @split = @people[/((Mdm|Er|Prof|Mr|Ms|Dr|[RAdm (NS)]|Mrs|[Asst. Prof.]|[Assoc. Prof.])*\s(\w)+(.*)(\n|\w|[.])+)+/].split('.')
+   puts @split
     if !@split.nil?
         @db = Sequel.connect("#$database_path")
         @db.create_table? :attendance do
@@ -71,6 +73,7 @@ class Parsething
           String :parliament
         end
     end
+    begin
     @split.each do |t|
       # is ______?
       if t =~ /[_]+/
@@ -99,6 +102,9 @@ class Parsething
       items.insert(:name => name, :ward => ward, :attended => false, :parliament => "12", :date => @filename.to_s.gsub('.txt', ''), :link => @link)
       else
       end
+    end
+    rescue
+      puts "Exception!"
     end
 #    @people = @doc[/ABSENT:\n+(.*)-{10}/m, 1].split(/\n+/)
   end
