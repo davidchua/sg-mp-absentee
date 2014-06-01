@@ -43,8 +43,9 @@ class Parsething
   def parse
     require 'ruby-debug'
     # look through doc for the keyword 'ABSENT'
-   # debugger
-    @people = @doc[/ABSENT:(.*?)_{2,}?\n{1,}/m]
+    @people = @doc[/ABSENT:\s+(.*?)\n{2,}/m]
+#    @people = @doc[/ABSENT:(.*?)_{2,}?\n{1,}/m]
+#    @people = @doc[/ABSENT/m]
     if @people.nil?
       return
     end
@@ -56,7 +57,7 @@ class Parsething
 #   @split = @people[/((Mr|Ms|Dr|[RAdm (NS)]|Mrs|[Assoc. Prof.])*\s(\w)+(.*)(\n|\w|[.])+)+/].split(/\n{2}/)
 
    @people.gsub!('Assoc. Prof.', 'Associate Professor')
-   #debugger
+#   debugger
    @split = @people[/((Mdm|Er|Prof|Mr|Ms|Dr|[RAdm (NS)]|Mrs|[Assoc. Prof.])*\s(\w)+(.*)(\n|\w|[.])+)+/].split('.')
     if !@split.nil?
         @db = Sequel.connect("#$database_path")
@@ -84,6 +85,7 @@ class Parsething
       name = t.gsub(/([(].+[)])(.*)+/, '').strip
 #      puts name
       items = @db[:attendance]
+      puts "WHAT: #{t}"
       ward = t[/([(].+[)])+/][1..-2]
       if name == "Mr SPEAKER"
         name = ward.gsub(/([(].+[)])(.*)+/, '').strip
